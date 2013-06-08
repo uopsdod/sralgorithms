@@ -16,9 +16,9 @@ public class SM2 {
 		qualityResponse = 0;
 	}
 	
-	public SM2(float ef) {
+	public SM2(float ef, int qr) {
 		eFactor = ef;
-		qualityResponse = 0;
+		qualityResponse = qr;
 	}
 	
 	public float getEFactor() {
@@ -69,11 +69,15 @@ public class SM2 {
 	}
 	
 	/**
-	 * Update the quality response and adjust eFactor if necessary
+	 * Get new E-Factor based on the given E-Factor and quality response 
+	 * @param ef Current E-Factor
+	 * @param qr Quality response
+	 * @return
 	 */
-	public void updateResponse() {
-		eFactor = eFactor +(0.1f-(5-qualityResponse)*(0.08f+(5-qualityResponse)*0.02f));
-		if (eFactor < 1.3f) eFactor = 1.3f;
+	public float getNewEFactor() {
+		float newEFactor = eFactor +(0.1f-(5-qualityResponse)*(0.08f+(5-qualityResponse)*0.02f));
+		if (newEFactor < 1.3f) newEFactor = 1.3f;
+		return newEFactor;
 	}
 	
 }
