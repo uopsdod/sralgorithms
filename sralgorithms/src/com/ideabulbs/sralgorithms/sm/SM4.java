@@ -1,8 +1,18 @@
 package com.ideabulbs.sralgorithms.sm;
 
-
-public class SM4 {
-	
+/**
+ * SM4 spaced repetition algorithm implementation.
+ * 
+ * @author Andrei Matveyeu
+ * @see Supermemo SM4 algorithm implementation by Dr. P. Wozniak: http://www.supermemo.com/english/ol/sm4.htm
+ */
+public class SM4 extends SchedulingAlgorithm {
+	/**
+	 * OI Matrix (optimal interval
+	 * columns: E-Factors (1.2..6.9) (step=0.3)
+	 * rows: repetitions (1..20)
+	 * TODO: this matrix shall be dynamic with entries being modified during the learning process
+	 */
 	static final double[][] oiMatrix = {
 		{ 2.50, 2.50, 2.50, 2.50, 2.50, 2.50, 2.50, 2.50, 2.50, 2.50, 2.50, 2.50, 2.50, 2.50, 2.50, 2.50, 2.50, 2.50, 2.50, 2.50 },
 		{ 3.00, 3.70, 4.50, 5.20, 6.00, 6.70, 7.50, 8.20, 8.90, 9.70, 10.40, 11.20, 11.90, 12.70, 13.40, 14.20, 14.90, 15.60, 16.40, 17.10 },
@@ -26,6 +36,77 @@ public class SM4 {
 		{ 78.00, 180.00, 401.50, 839.50, 1460.00, 2920.00, 5475.00, 9855.00 },
 	};
 	
+	int repetitionNumber = -1;
+	double fraction = 0.5; // fraction is a factor indicating how quickly the OI matrix will be changing
 
+	public SM4() {
+		eFactor = 2.5;
+		qualityResponse = 0;
+	}
+	
+	public SM4(double ef, int qr) {
+		eFactor = ef;
+		qualityResponse = qr;
+	}
+	
+	public int getNextInterval(int n) {
+		repetitionNumber = n;
+		if (n==1) return 1;
+		else if (n==2) return 6;
+		else {
+			int column = (int) Math.round(((eFactor - 1.2) / 0.3));
+			int row = n-2;
+			if (row > oiMatrix.length-1) row = oiMatrix.length - 1;
+			if (column > oiMatrix[row].length-1) column = oiMatrix[row].length - 1;
+			return (int) Math.round(oiMatrix[row][column]*eFactor);
+		}
+	}
 
+	/**
+	 * Get new E-Factor based on the given E-Factor and quality response 
+	 * @param ef Current E-Factor
+	 * @param qr Quality response
+	 * @return
+	 */
+	public double getNewEFactor() {
+		double newEFactor = eFactor +(0.1-(5-qualityResponse)*(0.08+(5-qualityResponse)*0.02));
+		if (newEFactor < 1.3) newEFactor = 1.3;
+		return newEFactor;
+	}
+	
+	/**
+	 * Get next repetition number. Repetitions are reset if quality response is lower than 3.
+	 * @return
+	 */
+	public int getNextRepetitionNumber() {
+		if (qualityResponse<3) {
+			return 1;
+		}
+		else {
+			return repetitionNumber + 1;
+		}
+	}
+	
+	/**
+	 * Get new entry for the OI matrix
+	 * 
+	 * Formula:
+	 * OI':=interval+interval*(1-1/EF)/2*(0.25*q-1)
+	 * OI'':=(1-fraction)*OI+fraction*OI'
+	 * 
+	 * OI'' - new value of the OI entry,
+	 * OI' - auxiliary value of the OI entry used in calculations,
+	 * OI - old value of the OI entry,
+	 * interval - interval used before the considered repetition (i.e. the last used interval for the given item),
+	 * fraction - any number between 0 and 1 (the greater it is the faster the changes of the OI matrix),
+	 * EF - E-Factor of the repeated item,
+	 * q - quality of the response in the 0-5 grade scale.
+	 * 
+	 * @return
+	 */
+	public double getNewOIMatrixEntry(int previousInterval, double previousOI) {
+		double oi1 = previousInterval + previousInterval * (1 - 1.0 / eFactor) / 2 * (0.25 * qualityResponse-1);
+		double oi2 = (1 - fraction) * previousOI + fraction * oi1;
+		return oi2;
+	}	
 }
