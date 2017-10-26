@@ -40,12 +40,12 @@ public class SM4 extends SchedulingAlgorithm {
 	double fraction = 0.5; // fraction is a factor indicating how quickly the OI matrix will be changing
 
 	public SM4() {
-		eFactor = 2.5;
+		howEasyThisQToYou = 2.5;
 		qualityResponse = 0;
 	}
 	
 	public SM4(double ef, int qr) {
-		eFactor = ef;
+		howEasyThisQToYou = ef;
 		qualityResponse = qr;
 	}
 	
@@ -54,11 +54,11 @@ public class SM4 extends SchedulingAlgorithm {
 		if (n==1) return 1;
 		else if (n==2) return 6;
 		else {
-			int column = (int) Math.round(((eFactor - 1.2) / 0.3));
+			int column = (int) Math.round(((howEasyThisQToYou - 1.2) / 0.3));
 			int row = n-2;
 			if (row > oiMatrix.length-1) row = oiMatrix.length - 1;
 			if (column > oiMatrix[row].length-1) column = oiMatrix[row].length - 1;
-			return (int) Math.round(oiMatrix[row][column]*eFactor);
+			return (int) Math.round(oiMatrix[row][column]*howEasyThisQToYou);
 		}
 	}
 
@@ -69,7 +69,7 @@ public class SM4 extends SchedulingAlgorithm {
 	 * @return
 	 */
 	public double getNewEFactor() {
-		double newEFactor = eFactor +(0.1-(5-qualityResponse)*(0.08+(5-qualityResponse)*0.02));
+		double newEFactor = howEasyThisQToYou +(0.1-(5-qualityResponse)*(0.08+(5-qualityResponse)*0.02));
 		if (newEFactor < 1.3) newEFactor = 1.3;
 		return newEFactor;
 	}
@@ -105,7 +105,7 @@ public class SM4 extends SchedulingAlgorithm {
 	 * @return
 	 */
 	public double getNewOIMatrixEntry(int previousInterval, double previousOI) {
-		double oi1 = previousInterval + previousInterval * (1 - 1.0 / eFactor) / 2 * (0.25 * qualityResponse-1);
+		double oi1 = previousInterval + previousInterval * (1 - 1.0 / howEasyThisQToYou) / 2 * (0.25 * qualityResponse-1);
 		double oi2 = (1 - fraction) * previousOI + fraction * oi1;
 		return oi2;
 	}	

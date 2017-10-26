@@ -1,16 +1,18 @@
 package com.ideabulbs.sralgorithms.sm;
 
-abstract class SchedulingAlgorithm {
-	double eFactor;
+public abstract class SchedulingAlgorithm {
+	public static final Double MIN_EFACTOR = 1.3;
+	
+	double howEasyThisQToYou;
 	int qualityResponse;
-	double defaultEFactor = 2.5;
+	double defaultEFactor = 2.5f;
 
 	public double getEFactor() {
-		return eFactor;
+		return howEasyThisQToYou;
 	}
 	
 	public void setEFactor(double newEFactor) {
-		eFactor = newEFactor;
+		howEasyThisQToYou = newEFactor;
 	}
 	
 	public int getQualityResponse() {
@@ -29,7 +31,8 @@ abstract class SchedulingAlgorithm {
 	 */
 	public void setQualityResponse(int newResponse) {
 		qualityResponse = newResponse;
-		if (qualityResponse < 3) eFactor = defaultEFactor;
+		if (qualityResponse < QualityResponseEnum.CORRECT_RESPONSE_03.getLevel()) 
+			howEasyThisQToYou = defaultEFactor;
 	}
 	
 	public abstract int getNextInterval(int n);
